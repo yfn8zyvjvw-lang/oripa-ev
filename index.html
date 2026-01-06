@@ -2,100 +2,115 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>オリパ全買い期待値ツール</title>
+  <title>オリパ全買い期待値</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f5f5f5;
-      padding: 20px;
+      background: #f7f7f7;
+      margin: 0;
+      padding: 16px;
     }
+
     h1 {
-      text-align: center;
+      font-size: 22px;
+      margin-bottom: 16px;
     }
+
     input, button {
       width: 100%;
       padding: 10px;
-      margin: 5px 0;
-      font-size: 16px;
-    }
-    .card {
-      background: #fff;
-      padding: 10px;
       margin-bottom: 10px;
-      border-radius: 8px;
+      font-size: 16px;
+      box-sizing: border-box;
     }
+
+    button {
+      background: #007aff;
+      color: white;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .card-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .card-row input {
+      flex: 1;
+    }
+
     .result {
-      background: #222;
-      color: #0f0;
-      padding: 15px;
-      font-size: 18px;
-      margin-top: 20px;
-      border-radius: 8px;
+      margin-top: 16px;
+      padding: 12px;
+      background: #000;
+      color: #fff;
+      border-radius: 6px;
+      font-size: 16px;
     }
   </style>
 </head>
+
 <body>
 
-<h1>🎴 オリパ全買い期待値</h1>
+  <h1>🃏 オリパ全買い期待値</h1>
 
-<label>1口の価格（円）</label>
-<input type="number" id="packPrice" placeholder="例：1000">
+  <input id="pricePerPack" type="number" placeholder="1口の価格（円）">
+  <input id="totalPacks" type="number" placeholder="総口数">
 
-<label>総口数</label>
-<input type="number" id="totalPacks" placeholder="例：100">
+  <h3>排出カード（市場価格入力）</h3>
 
-<hr>
+  <div id="cards"></div>
 
-<h2>排出カード（市場価格入力）</h2>
+  <button onclick="addCard()">＋カード追加</button>
 
-<div id="cards"></div>
+  <h3>🎁 ラストワン賞の価格（円）</h3>
+  <input id="lastOnePrice" type="number" placeholder="例：30000">
 
-<button onclick="addCard()">＋カード追加</button>
+  <button onclick="calculateEV()">期待値を計算する</button>
 
-<hr>
+  <div id="result" class="result"></div>
 
-<label>🎁 ラストワン賞の価格（円）</label>
-<input type="number" id="lastOne" placeholder="例：30000">
+  <script>
+    function addCard() {
+      const container = document.getElementById("cards");
+      container.insertAdjacentHTML("beforeend", `
+        <div class="card-row">
+          <input type="text" placeholder="カード名">
+          <input type="number" placeholder="市場価格（円）">
+          <input type="number" placeholder="枚数">
+        </div>
+      `);
+    }
 
-<button onclick="calcEV()">期待値を計算する</button>
+    function calculateEV() {
+      const pricePerPack = Number(document.getElementById("pricePerPack").value);
+      const totalPacks = Number(document.getElementById("totalPacks").value);
+      const lastOnePrice = Number(document.getElementById("lastOnePrice").value);
 
-<div class="result" id="result"></div>
+      let totalCardValue = 0;
 
-<script>
-function addCard() {
-  const div = document.createElement("div");
-  div.className = "card";
-  div.innerHTML = `
-    <input type="text" placeholder="カード名（例：リザードンSR）">
-    <input type="number" placeholder="市場価格（円）">
-    <input type="number" placeholder="排出枚数">
-  `;
-  document.getElementById("cards").appendChild(div);
-}
+      // ※ ここではまだ「枚数」は計算に使わない（次ステップ）
+      document.querySelectorAll(".card-row").forEach(row => {
+        const price = Number(row.children[1].value);
+        if (!isNaN(price)) {
+          totalCardValue += price;
+        }
+      });
 
-function calcEV() {
-  const packPrice = Number(document.getElementById("packPrice").value);
-  const totalPacks = Number(document.getElementById("totalPacks").value);
-  const lastOne = Number(document.getElementById("lastOne").value);
+      const totalCost = pricePerPack * totalPacks;
+      const totalReturn = totalCardValue + lastOnePrice;
+      const ev = totalReturn - totalCost;
 
-  let totalValue = lastOne;
-
-  document.querySelectorAll(".card").forEach(card => {
-    const price = Number(card.children[1].value);
-    const count = Number(card.children[2].value);
-    totalValue += price * count;
-  });
-
-  const totalCost = packPrice * totalPacks;
-  const ev = totalValue - totalCost;
-
-  document.getElementById("result").innerHTML =
-    `💰 総回収額：${totalValue.toLocaleString()} 円<br>
-     💸 総投資額：${totalCost.toLocaleString()} 円<br>
-     📈 期待値（EV）：${ev.toLocaleString()} 円`;
-}
-</script>
+      document.getElementById("result").innerText =
+        総投資額：${totalCost.toLocaleString()}円\n +
+        総リターン：${totalReturn.toLocaleString()}円\n +
+        `期待値：${ev.toLocaleString()}円`;
+    }
+  </script>
 
 </body>
 </html>
