@@ -9,42 +9,57 @@
 * {
   box-sizing: border-box;
 }
+
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f6f6f6;
   padding: 16px;
 }
+
 h1 {
   font-size: 22px;
 }
+
 input, button {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
   font-size: 16px;
 }
+
 button {
   background: #007aff;
   color: white;
   border: none;
   border-radius: 6px;
 }
+
+.card-header,
 .card-row {
   display: flex;
   gap: 6px;
   margin-bottom: 6px;
 }
+
+.card-header div {
+  flex: 1;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+}
+
 .card-row input {
   flex: 1;
   min-width: 0;
 }
+
 .result {
   margin-top: 16px;
   padding: 12px;
   background: #000;
   color: #fff;
   border-radius: 6px;
-  font-size: 16px;
+  white-space: pre-line;
 }
 </style>
 </head>
@@ -57,18 +72,28 @@ button {
 <input id="totalPacks" type="number" placeholder="総口数">
 
 <h3>排出カード</h3>
+
+<div class="card-header">
+  <div>カード名</div>
+  <div>市場価格</div>
+  <div>枚数</div>
+</div>
+
 <div id="cards"></div>
 
-<button type="button" onclick="addCard()">＋カード追加</button>
+<button id="addCardBtn" type="button">＋カード追加</button>
 
 <h3>🎁 ラストワン賞（円）</h3>
 <input id="lastOnePrice" type="number" placeholder="例：30000">
 
-<button type="button" onclick="calculateEV()">期待値を計算する</button>
+<button id="calcBtn" type="button">期待値を計算する</button>
 
 <div id="result" class="result"></div>
 
 <script>
+document.getElementById("addCardBtn").addEventListener("click", addCard);
+document.getElementById("calcBtn").addEventListener("click", calculateEV);
+
 function addCard() {
   const cards = document.getElementById("cards");
 
@@ -103,7 +128,6 @@ function calculateEV() {
   document.querySelectorAll(".card-row").forEach(row => {
     const price = Number(row.children[1].value);
     const count = Number(row.children[2].value);
-
     if (!isNaN(price) && !isNaN(count)) {
       totalCardValue += price * count;
     }
@@ -114,10 +138,10 @@ function calculateEV() {
   const ev = totalReturn - totalCost;
 
   document.getElementById("result").innerText =
-    当たり総額：${totalCardValue.toLocaleString()}円\n +
-    総投資額：${totalCost.toLocaleString()}円\n +
-    総リターン：${totalReturn.toLocaleString()}円\n +
-    `期待値：${ev.toLocaleString()}円`;
+    `当たり総額：${totalCardValue.toLocaleString()}円
+総投資額：${totalCost.toLocaleString()}円
+総リターン：${totalReturn.toLocaleString()}円
+期待値：${ev.toLocaleString()}円`;
 }
 </script>
 
