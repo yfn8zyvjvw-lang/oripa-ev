@@ -7,47 +7,39 @@
 
 <style>
 * { box-sizing: border-box; }
-
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f6f6f6;
   padding: 16px;
 }
-
 h1 { font-size: 22px; }
-
 input, button {
   width: 100%;
   padding: 10px;
   margin-bottom: 10px;
   font-size: 16px;
 }
-
 button {
   background: #007aff;
   color: #fff;
   border: none;
   border-radius: 6px;
 }
-
 .card-header, .card-row {
   display: flex;
   gap: 6px;
   margin-bottom: 6px;
 }
-
 .card-header div {
   flex: 1;
   text-align: center;
   font-weight: bold;
   font-size: 14px;
 }
-
 .card-row input {
   flex: 1;
   min-width: 0;
 }
-
 .result {
   margin-top: 16px;
   padding: 12px;
@@ -55,6 +47,11 @@ button {
   color: #fff;
   border-radius: 6px;
   white-space: pre-line;
+}
+.prob {
+  font-size: 13px;
+  color: #333;
+  margin-bottom: 4px;
 }
 </style>
 </head>
@@ -86,56 +83,83 @@ button {
 <div id="result" class="result"></div>
 
 <script>
-document.getElementById("addCardBtn").addEventListener("click", addCard);
-document.getElementById("calcBtn").addEventListener("click", calculateEV);
-
-function addCard() {
-  const row = document.createElement("div");
-  row.className = "card-row";
-
-  ["カード名", "市場価格", "枚数"].forEach((p, i) => {
-    const input = document.createElement("input");
-    input.placeholder = p;
-    if (i > 0) input.type = "number";
-    row.appendChild(input);
-  });
-
-  document.getElementById("cards").appendChild(row);
-}
-
-function calculateEV() {
-  const pricePerPack = Number(pricePerPackEl.value);
-  const totalPacks = Number(totalPacksEl.value);
-  const remainingPacks = Number(remainingPacksEl.value);
-  const lastOnePrice = Number(lastOnePriceEl.value);
-
-  let expectedCardValue = 0;
-
-  document.querySelectorAll(".card-row").forEach(row => {
-    const price = Number(row.children[1].value);
-    const count = Number(row.children[2].value);
-
-    if (!isNaN(price) && !isNaN(count)) {
-      const expectedRemaining = count * (remainingPacks / totalPacks);
-      expectedCardValue += price * expectedRemaining;
-    }
-  });
-
-  const totalCost = pricePerPack * remainingPacks;
-  const totalReturn = expectedCardValue + lastOnePrice;
-  const ev = totalReturn - totalCost;
-
-  document.getElementById("result").innerText =
-    `残り当たり期待額：${Math.round(expectedCardValue).toLocaleString()}円
-残り投資額：${totalCost.toLocaleString()}円
-ラストワン含む期待リターン：${Math.round(totalReturn).toLocaleString()}円
-期待値：${Math.round(ev).toLocaleString()}円`;
-}
-
 const pricePerPackEl = document.getElementById("pricePerPack");
 const totalPacksEl = document.getElementById("totalPacks");
 const remainingPacksEl = document.getElementById("remainingPacks");
 const lastOnePriceEl = document.getElementById("lastOnePrice");
+
+document.getElementById("addCardBtn").addEventListener("click", addCard);
+document.getElementById("calcBtn").addEventListener("click", calculateEV);
+
+function addCard() {
+  const wrapper = document.createElement("div");
+
+  const row = document.createElement("div");
+  row.className = "card-row";
+
+  const name = document.createElement("input");
+  name.placeholder = "S賞 / A賞 など";
+
+  const price = document.createElement("input");
+  price.type = "number";
+  price.placeholder = "市場価格";
+
+  const count = document.createElement("input");
+  count.type = "number";
+  count.placeholder = "枚数";
+
+  row.appendChild(name);
+  row.appendChild(price);
+  row.appendChild(count);
+
+  const prob = document.createElement("div");
+  prob.className = "prob";
+
+  wrapper.appendChild(row);
+  wrapper.appendChild(prob);
+
+  document.getElementById("cards").appendChild(wrapper);
+}
+
+function calculateEV() {
+  const totalPacks = Number(totalPacksEl.value);
+  const remainingPacks = Number(remainingPacksEl.value);
+  const pricePerPack = Number(pricePerPackEl.value);
+  const lastOnePrice = Number(lastOnePriceEl.value);
+
+  let expectedValue = 0;
+
+  document.querySelectorAll("#cards > div").forEach(block => {
+    const row = block.querySelector(".card-row");
+    const probEl = block.querySelector(".prob");
+
+    const name = row.children[0].value || "不明";
+    const price = Number(row.children[1].value);
+    const count = Number(row.children[2].value);
+
+    if (price > 0 && count > 0) {
+      // 残存確率
+      const probRemain = 1 - Math.pow((totalPacks - count) / totalPacks, remainingPacks);
+      const percent = (probRemain * 100).toFixed(1);
+
+      probEl.innerText = `${name} 残存確率：${percent}%`;
+
+      // 期待値
+      const expectedRemain = count * (remainingPacks / totalPacks);
+      expectedValue += price * expectedRemain;
+    }
+  });
+
+  const totalCost = pricePerPack * remainingPacks;
+  const totalReturn = expectedValue + lastOnePrice;
+  const ev = totalReturn - totalCost;
+
+  document.getElementById("result").innerText =
+    `残り当たり期待額：${Math.round(expectedValue).toLocaleString()}円
+残り投資額：${totalCost.toLocaleString()}円
+期待リターン：${Math.round(totalReturn).toLocaleString()}円
+期待値：${Math.round(ev).toLocaleString()}円`;
+}
 </script>
 
 </body>
