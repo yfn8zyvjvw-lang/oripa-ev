@@ -122,7 +122,10 @@ function addCard() {
 
   const checkbox = document.createElement("div");
   checkbox.className = "checkbox";
-  checkbox.innerHTML = `<input type="checkbox"> 排出済み（確定）`;
+ checkbox.innerHTML = `
+  <input type="checkbox">
+  <span>排出済み（確定）</span>
+`;
 
   const prob = document.createElement("div");
   prob.className = "prob";
