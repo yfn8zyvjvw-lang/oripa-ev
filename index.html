@@ -9,7 +9,6 @@
 * {
   box-sizing: border-box;
 }
-  
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background: #f6f6f6;
@@ -45,13 +44,14 @@ button {
   background: #000;
   color: #fff;
   border-radius: 6px;
+  font-size: 16px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🃏 オリパ全買い期待値 v2</h1>
+<h1>🃏 オリパ全買い期待値</h1>
 
 <input id="pricePerPack" type="number" placeholder="1口の価格（円）">
 <input id="totalPacks" type="number" placeholder="総口数">
@@ -94,8 +94,30 @@ function addCard() {
 }
 
 function calculateEV() {
+  const pricePerPack = Number(document.getElementById("pricePerPack").value);
+  const totalPacks = Number(document.getElementById("totalPacks").value);
+  const lastOnePrice = Number(document.getElementById("lastOnePrice").value);
+
+  let totalCardValue = 0;
+
+  document.querySelectorAll(".card-row").forEach(row => {
+    const price = Number(row.children[1].value);
+    const count = Number(row.children[2].value);
+
+    if (!isNaN(price) && !isNaN(count)) {
+      totalCardValue += price * count;
+    }
+  });
+
+  const totalCost = pricePerPack * totalPacks;
+  const totalReturn = totalCardValue + lastOnePrice;
+  const ev = totalReturn - totalCost;
+
   document.getElementById("result").innerText =
-    "次のステップで計算ロジックを実装します";
+    当たり総額：${totalCardValue.toLocaleString()}円\n +
+    総投資額：${totalCost.toLocaleString()}円\n +
+    総リターン：${totalReturn.toLocaleString()}円\n +
+    `期待値：${ev.toLocaleString()}円`;
 }
 </script>
 
