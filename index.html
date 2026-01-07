@@ -43,8 +43,10 @@ button {
 .checkbox {
   display: flex;
   align-items: center;
+  gap: 6px;              /* ← これが重要 */
   font-size: 13px;
   margin-bottom: 6px;
+  white-space: nowrap;  /* ← 折り返し防止 */
 }
 .result {
   margin-top: 16px;
