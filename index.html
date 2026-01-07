@@ -43,6 +43,7 @@ button {
 .checkbox {
   display: flex;
   align-items: center;
+  justify-content: flex-start; /* ←これ */
   gap: 6px;              /* ← これが重要 */
   font-size: 13px;
   margin-bottom: 6px;
@@ -64,6 +65,20 @@ button {
 .mode {
   font-weight: bold;
   margin-bottom: 8px;
+}
+  .checkbox {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  font-size: 13px;
+  margin-bottom: 6px;
+  white-space: nowrap;
+}
+
+.checkbox input {
+  width: auto;
+  margin-left: 0;
 }
 </style>
 </head>
