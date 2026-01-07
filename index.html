@@ -40,6 +40,12 @@ button {
   flex: 1;
   min-width: 0;
 }
+.checkbox {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  margin-bottom: 6px;
+}
 .result {
   margin-top: 16px;
   padding: 12px;
@@ -51,18 +57,23 @@ button {
 .prob {
   font-size: 13px;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+}
+.mode {
+  font-weight: bold;
+  margin-bottom: 8px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🃏 オリパ全買い期待値</h1>
+<h1>🃏 オリパ期待値ツール</h1>
 
 <input id="pricePerPack" type="number" placeholder="1口の価格（円）">
 <input id="totalPacks" type="number" placeholder="総口数">
 <input id="remainingPacks" type="number" placeholder="残り口数">
+<input id="purchaseCount" type="number" placeholder="今回購入数（例：10）">
 
 <h3>排出カード</h3>
 
@@ -76,23 +87,18 @@ button {
 <button id="addCardBtn">＋カード追加</button>
 
 <h3>🎁 ラストワン賞（円）</h3>
-<input id="lastOnePrice" type="number" placeholder="例：30000">
+<input id="lastOnePrice" type="number" placeholder="全買い時のみ加算">
 
 <button id="calcBtn">期待値を計算する</button>
 
 <div id="result" class="result"></div>
 
 <script>
-const pricePerPackEl = document.getElementById("pricePerPack");
-const totalPacksEl = document.getElementById("totalPacks");
-const remainingPacksEl = document.getElementById("remainingPacks");
-const lastOnePriceEl = document.getElementById("lastOnePrice");
-
 document.getElementById("addCardBtn").addEventListener("click", addCard);
 document.getElementById("calcBtn").addEventListener("click", calculateEV);
 
 function addCard() {
-  const wrapper = document.createElement("div");
+  const block = document.createElement("div");
 
   const row = document.createElement("div");
   row.className = "card-row";
@@ -112,53 +118,77 @@ function addCard() {
   row.appendChild(price);
   row.appendChild(count);
 
+  const checkbox = document.createElement("div");
+  checkbox.className = "checkbox";
+  checkbox.innerHTML = `<input type="checkbox"> 排出済み（確定）`;
+
   const prob = document.createElement("div");
   prob.className = "prob";
 
-  wrapper.appendChild(row);
-  wrapper.appendChild(prob);
+  block.appendChild(row);
+  block.appendChild(checkbox);
+  block.appendChild(prob);
 
-  document.getElementById("cards").appendChild(wrapper);
+  document.getElementById("cards").appendChild(block);
 }
 
 function calculateEV() {
-  const totalPacks = Number(totalPacksEl.value);
-  const remainingPacks = Number(remainingPacksEl.value);
-  const pricePerPack = Number(pricePerPackEl.value);
-  const lastOnePrice = Number(lastOnePriceEl.value);
+  const pricePerPack = Number(document.getElementById("pricePerPack").value);
+  const totalPacks = Number(document.getElementById("totalPacks").value);
+  const remainingPacks = Number(document.getElementById("remainingPacks").value);
+  const purchaseCount = Number(document.getElementById("purchaseCount").value);
+  const lastOnePrice = Number(document.getElementById("lastOnePrice").value);
+
+  if (purchaseCount <= 0 || purchaseCount > remainingPacks) {
+    alert("購入数は1以上、残り口数以下で入力してください");
+    return;
+  }
 
   let expectedValue = 0;
 
   document.querySelectorAll("#cards > div").forEach(block => {
     const row = block.querySelector(".card-row");
+    const checkbox = block.querySelector("input[type='checkbox']");
     const probEl = block.querySelector(".prob");
 
     const name = row.children[0].value || "不明";
     const price = Number(row.children[1].value);
     const count = Number(row.children[2].value);
 
+    if (checkbox.checked) {
+      probEl.innerText = `${name}：排出済み（確定）`;
+      return;
+    }
+
     if (price > 0 && count > 0) {
-      // 残存確率
-      const probRemain = 1 - Math.pow((totalPacks - count) / totalPacks, remainingPacks);
-      const percent = (probRemain * 100).toFixed(1);
+      const probRemain =
+        1 - Math.pow((totalPacks - count) / totalPacks, remainingPacks);
 
-      probEl.innerText = `${name} 残存確率：${percent}%`;
+      probEl.innerText =
+        `${name} 残存確率：${(probRemain * 100).toFixed(1)}%`;
 
-      // 期待値
-      const expectedRemain = count * (remainingPacks / totalPacks);
-      expectedValue += price * expectedRemain;
+      const expectedHits = count * (purchaseCount / totalPacks);
+      expectedValue += price * expectedHits;
     }
   });
 
-  const totalCost = pricePerPack * remainingPacks;
-  const totalReturn = expectedValue + lastOnePrice;
-  const ev = totalReturn - totalCost;
+  const cost = pricePerPack * purchaseCount;
+  const isAllBuy = purchaseCount === remainingPacks;
+  const totalReturn = expectedValue + (isAllBuy ? lastOnePrice : 0);
+  const ev = totalReturn - cost;
 
   document.getElementById("result").innerText =
-    `残り当たり期待額：${Math.round(expectedValue).toLocaleString()}円
-残り投資額：${totalCost.toLocaleString()}円
-期待リターン：${Math.round(totalReturn).toLocaleString()}円
-期待値：${Math.round(ev).toLocaleString()}円`;
+    `【モード】
+${isAllBuy ? "全買い（ラストワン含む）" : "部分買い"}
+
+【期待リターン】
+${Math.round(totalReturn).toLocaleString()}円
+
+【投資額】
+${cost.toLocaleString()}円
+
+【期待値】
+${Math.round(ev).toLocaleString()}円`;
 }
 </script>
 
