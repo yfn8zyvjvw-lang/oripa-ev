@@ -1,82 +1,96 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>オリパ全買い期待値</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>オリパ全買い期待値</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #f7f7f7;
-      margin: 0;
-      padding: 16px;
-    }
-
-    h1 {
-      font-size: 22px;
-      margin-bottom: 16px;
-    }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-
-    button {
-      background: #007aff;
-      color: white;
-      border: none;
-      border-radius: 6px;
-    }
-
-    .card-row {
-      display: flex;
-      gap: 6px;
-      margin-bottom: 8px;
-    }
-
-    .card-row input {
-      flex: 1;
-    }
-
-    .result {
-      margin-top: 16px;
-      padding: 12px;
-      background: #000;
-      color: #fff;
-      border-radius: 6px;
-      font-size: 16px;
-    }
-  </style>
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #f6f6f6;
+  padding: 16px;
+}
+h1 {
+  font-size: 22px;
+}
+input, button {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+button {
+  background: #007aff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+}
+.card-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+.card-row input {
+  width: 33%;
+}
+.result {
+  margin-top: 16px;
+  padding: 12px;
+  background: #000;
+  color: #fff;
+  border-radius: 6px;
+}
+</style>
 </head>
 
 <body>
 
-  <h1>🃏 オリパ全買い期待値 v2</h1>
+<h1>🃏 オリパ全買い期待値</h1>
 
-  <input id="pricePerPack" type="number" placeholder="1口の価格（円）">
-  <input id="totalPacks" type="number" placeholder="総口数">
+<input id="pricePerPack" type="number" placeholder="1口の価格（円）">
+<input id="totalPacks" type="number" placeholder="総口数">
 
-  <h3>排出カード（市場価格入力）</h3>
+<h3>排出カード</h3>
+<div id="cards"></div>
 
-  <div id="cards"></div>
+<button type="button" onclick="addCard()">＋カード追加</button>
 
-  <button onclick="addCard()">＋カード追加</button>
+<h3>🎁 ラストワン賞（円）</h3>
+<input id="lastOnePrice" type="number" placeholder="例：30000">
 
-  <h3>🎁 ラストワン賞の価格（円）</h3>
-  <input id="lastOnePrice" type="number" placeholder="例：30000">
+<button type="button" onclick="calculateEV()">期待値を計算する</button>
 
-  <button onclick="calculateEV()">期待値を計算する</button>
+<div id="result" class="result"></div>
 
-  <div id="result" class="result"></div>
-
-  <script>
+<script>
 function addCard() {
-  alert("動いてます！");
+  const cards = document.getElementById("cards");
+
+  const row = document.createElement("div");
+  row.className = "card-row";
+
+  const name = document.createElement("input");
+  name.placeholder = "カード名";
+
+  const price = document.createElement("input");
+  price.type = "number";
+  price.placeholder = "市場価格";
+
+  const count = document.createElement("input");
+  count.type = "number";
+  count.placeholder = "枚数";
+
+  row.appendChild(name);
+  row.appendChild(price);
+  row.appendChild(count);
+
+  cards.appendChild(row);
+}
+
+function calculateEV() {
+  document.getElementById("result").innerText =
+    "次のステップで計算ロジックを実装します";
 }
 </script>
 
