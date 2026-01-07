@@ -6,9 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
@@ -16,9 +14,7 @@ body {
   padding: 16px;
 }
 
-h1 {
-  font-size: 22px;
-}
+h1 { font-size: 22px; }
 
 input, button {
   width: 100%;
@@ -29,13 +25,12 @@ input, button {
 
 button {
   background: #007aff;
-  color: white;
+  color: #fff;
   border: none;
   border-radius: 6px;
 }
 
-.card-header,
-.card-row {
+.card-header, .card-row {
   display: flex;
   gap: 6px;
   margin-bottom: 6px;
@@ -70,6 +65,7 @@ button {
 
 <input id="pricePerPack" type="number" placeholder="1口の価格（円）">
 <input id="totalPacks" type="number" placeholder="総口数">
+<input id="remainingPacks" type="number" placeholder="残り口数">
 
 <h3>排出カード</h3>
 
@@ -80,13 +76,12 @@ button {
 </div>
 
 <div id="cards"></div>
-
-<button id="addCardBtn" type="button">＋カード追加</button>
+<button id="addCardBtn">＋カード追加</button>
 
 <h3>🎁 ラストワン賞（円）</h3>
 <input id="lastOnePrice" type="number" placeholder="例：30000">
 
-<button id="calcBtn" type="button">期待値を計算する</button>
+<button id="calcBtn">期待値を計算する</button>
 
 <div id="result" class="result"></div>
 
@@ -95,54 +90,52 @@ document.getElementById("addCardBtn").addEventListener("click", addCard);
 document.getElementById("calcBtn").addEventListener("click", calculateEV);
 
 function addCard() {
-  const cards = document.getElementById("cards");
-
   const row = document.createElement("div");
   row.className = "card-row";
 
-  const name = document.createElement("input");
-  name.placeholder = "カード名";
+  ["カード名", "市場価格", "枚数"].forEach((p, i) => {
+    const input = document.createElement("input");
+    input.placeholder = p;
+    if (i > 0) input.type = "number";
+    row.appendChild(input);
+  });
 
-  const price = document.createElement("input");
-  price.type = "number";
-  price.placeholder = "市場価格";
-
-  const count = document.createElement("input");
-  count.type = "number";
-  count.placeholder = "枚数";
-
-  row.appendChild(name);
-  row.appendChild(price);
-  row.appendChild(count);
-
-  cards.appendChild(row);
+  document.getElementById("cards").appendChild(row);
 }
 
 function calculateEV() {
-  const pricePerPack = Number(document.getElementById("pricePerPack").value);
-  const totalPacks = Number(document.getElementById("totalPacks").value);
-  const lastOnePrice = Number(document.getElementById("lastOnePrice").value);
+  const pricePerPack = Number(pricePerPackEl.value);
+  const totalPacks = Number(totalPacksEl.value);
+  const remainingPacks = Number(remainingPacksEl.value);
+  const lastOnePrice = Number(lastOnePriceEl.value);
 
-  let totalCardValue = 0;
+  let expectedCardValue = 0;
 
   document.querySelectorAll(".card-row").forEach(row => {
     const price = Number(row.children[1].value);
     const count = Number(row.children[2].value);
+
     if (!isNaN(price) && !isNaN(count)) {
-      totalCardValue += price * count;
+      const expectedRemaining = count * (remainingPacks / totalPacks);
+      expectedCardValue += price * expectedRemaining;
     }
   });
 
-  const totalCost = pricePerPack * totalPacks;
-  const totalReturn = totalCardValue + lastOnePrice;
+  const totalCost = pricePerPack * remainingPacks;
+  const totalReturn = expectedCardValue + lastOnePrice;
   const ev = totalReturn - totalCost;
 
   document.getElementById("result").innerText =
-    `当たり総額：${totalCardValue.toLocaleString()}円
-総投資額：${totalCost.toLocaleString()}円
-総リターン：${totalReturn.toLocaleString()}円
-期待値：${ev.toLocaleString()}円`;
+    `残り当たり期待額：${Math.round(expectedCardValue).toLocaleString()}円
+残り投資額：${totalCost.toLocaleString()}円
+ラストワン含む期待リターン：${Math.round(totalReturn).toLocaleString()}円
+期待値：${Math.round(ev).toLocaleString()}円`;
 }
+
+const pricePerPackEl = document.getElementById("pricePerPack");
+const totalPacksEl = document.getElementById("totalPacks");
+const remainingPacksEl = document.getElementById("remainingPacks");
+const lastOnePriceEl = document.getElementById("lastOnePrice");
 </script>
 
 </body>
