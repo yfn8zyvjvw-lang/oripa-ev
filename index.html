@@ -75,42 +75,10 @@
   <div id="result" class="result"></div>
 
   <script>
-    function addCard() {
-      const container = document.getElementById("cards");
-      container.insertAdjacentHTML("beforeend", `
-        <div class="card-row">
-          <input type="text" placeholder="カード名">
-          <input type="number" placeholder="市場価格（円）">
-          <input type="number" placeholder="枚数">
-        </div>
-      `);
-    }
-
-    function calculateEV() {
-      const pricePerPack = Number(document.getElementById("pricePerPack").value);
-      const totalPacks = Number(document.getElementById("totalPacks").value);
-      const lastOnePrice = Number(document.getElementById("lastOnePrice").value);
-
-      let totalCardValue = 0;
-
-      // ※ ここではまだ「枚数」は計算に使わない（次ステップ）
-      document.querySelectorAll(".card-row").forEach(row => {
-        const price = Number(row.children[1].value);
-        if (!isNaN(price)) {
-          totalCardValue += price;
-        }
-      });
-
-      const totalCost = pricePerPack * totalPacks;
-      const totalReturn = totalCardValue + lastOnePrice;
-      const ev = totalReturn - totalCost;
-
-      document.getElementById("result").innerText =
-        総投資額：${totalCost.toLocaleString()}円\n +
-        総リターン：${totalReturn.toLocaleString()}円\n +
-        `期待値：${ev.toLocaleString()}円`;
-    }
-  </script>
+function addCard() {
+  alert("動いてます！");
+}
+</script>
 
 </body>
 </html>
